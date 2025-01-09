@@ -2,8 +2,6 @@ const { Bill } = require('../models');
 
 const getFileURL = (filePath) => `http://localhost:5678/${filePath}`;
 
-const isPicture = (mimeType) => ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].includes(mimeType);
-
 const create = async (req, res) => {
   const { user } = req;
   if (!user) return res.status(401).send({ message: 'user must be authenticated' });
@@ -31,8 +29,8 @@ const create = async (req, res) => {
       commentary,
       status,
       commentAdmin,
-      fileName: isPicture(file.mimetype) ? file.originalname : 'null',
-      filePath: isPicture(file.mimetype) ? file.path : 'null',
+      fileName: file.originalname,
+      filePath: file.path,
       amount,
     });
     return res.status(201).json(bill);

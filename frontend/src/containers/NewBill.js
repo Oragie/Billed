@@ -15,39 +15,41 @@ export default class NewBill {
     this.fileUrl = null;
     this.fileName = null;
     this.billId = null;
-    this.files = [];
     new Logout({ document, localStorage, onNavigate });
   }
-
   handleChangeFile = (e) => {
     e.preventDefault();
-
-    // Sélection du fichier
-    const fileInput = this.document.querySelector(`input[data-testid="file"]`);
-    const file = fileInput.files[0];
-    console.log("File selected:", file);
-
-    // Vérification du type de fichier
-    const allowedExtensions = ["image/jpeg", "image/png"];
-    if (!allowedExtensions.includes(file.type)) {
-      alert("Seuls les fichiers .jpg, .jpeg et .png sont autorisés.");
-      fileInput.value = ""; // Réinitialiser la sélection de fichier
-      return;
-    }
-
-    // Mise à jour de la propriété files
-    this.files = [file];
-    console.log("Files array after update:", this.files);
-
-    // Poursuite de la logique si le fichier est valide
+    const file = this.document.querySelector(`input[data-testid="file"]`)
+      .files[0];
     const filePath = e.target.value.split(/\\/g);
     const fileName = filePath[filePath.length - 1];
-    console.log("File name:", fileName);
-    const formData = new FormData();
+
+    // Vérification du type de fichier BugFixé
+    const errorFileTypeMsg = this.document.querySelector(".msgErrorFiletype");
+    if (!/[^\s]+(.*?).(jpg|jpeg|png)$/i.test(file.type)) {
+      console.log("type fichier NON OK", file.type);
+      alert("Seuls les fichiers .jpg, .jpeg et .png sont autorisés.");
+      e.target.value = "";
+      errorFileTypeMsg.classList.remove("hidden");
+    } else {
+      console.log("type fichier OK", file.type);
+
+      this.fileName = fileName; // Stocker le nom du fichier pour l'envoyer plus tard lors de la soumission
+    }
+  };
+  // fin Bug
+
+  handleSubmit = (e) => {
+    e.preventDefault();
     const email = JSON.parse(localStorage.getItem("user")).email;
-    formData.append("file", file);
+    const formData = new FormData();
+    formData.append(
+      "file",
+      this.document.querySelector(`input[data-testid="file"]`).files[0]
+    );
     formData.append("email", email);
 
+    // Créer la facture et uploader le fichier (déplacé de handleChangeFile vers handleSubmit) BugFixé
     this.store
       .bills()
       .create({
@@ -57,41 +59,37 @@ export default class NewBill {
         },
       })
       .then(({ fileUrl, key }) => {
-        console.log("File URL:", fileUrl);
-        console.log("Key:", key);
         this.billId = key;
         this.fileUrl = fileUrl;
-        this.fileName = fileName;
+        // fin Bug
+
+        const bill = {
+          email,
+          type: e.target.querySelector(`select[data-testid="expense-type"]`)
+            .value,
+          name: e.target.querySelector(`input[data-testid="expense-name"]`)
+            .value,
+          amount: parseInt(
+            e.target.querySelector(`input[data-testid="amount"]`).value
+          ),
+          date: e.target.querySelector(`input[data-testid="datepicker"]`).value,
+          vat: e.target.querySelector(`input[data-testid="vat"]`).value,
+          pct:
+            parseInt(
+              e.target.querySelector(`input[data-testid="pct"]`).value
+            ) || 20,
+          commentary: e.target.querySelector(
+            `textarea[data-testid="commentary"]`
+          ).value,
+          fileUrl: this.fileUrl,
+          fileName: this.fileName,
+          status: "pending",
+        };
+
+        this.updateBill(bill);
+        this.onNavigate(ROUTES_PATH["Bills"]);
       })
       .catch((error) => console.error(error));
-  };
-  handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(
-      'e.target.querySelector(`input[data-testid="datepicker"]`).value',
-      e.target.querySelector(`input[data-testid="datepicker"]`).value
-    );
-    const email = JSON.parse(localStorage.getItem("user")).email;
-    const bill = {
-      email,
-      type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
-      name: e.target.querySelector(`input[data-testid="expense-name"]`).value,
-      amount: parseInt(
-        e.target.querySelector(`input[data-testid="amount"]`).value
-      ),
-      date: e.target.querySelector(`input[data-testid="datepicker"]`).value,
-      vat: e.target.querySelector(`input[data-testid="vat"]`).value,
-      pct:
-        parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) ||
-        20,
-      commentary: e.target.querySelector(`textarea[data-testid="commentary"]`)
-        .value,
-      fileUrl: this.fileUrl,
-      fileName: this.fileName,
-      status: "pending",
-    };
-    this.updateBill(bill);
-    this.onNavigate(ROUTES_PATH["Bills"]);
   };
 
   // not need to cover this function by tests

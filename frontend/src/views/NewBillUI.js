@@ -1,8 +1,7 @@
-import VerticalLayout from './VerticalLayout.js'
+import VerticalLayout from "./VerticalLayout.js";
 
 export default () => {
-
-  return (`
+  return `
     <div class='layout'>
       ${VerticalLayout(120)}
       <div class='content'>
@@ -54,8 +53,13 @@ export default () => {
                     <textarea class="form-control blue-border" data-testid="commentary" rows="3"></textarea>
                   </div>
                   <div class="col-half">
-                    <label for="file" class="bold-label">Justificatif</label>
-                    <input required type="file" accept=".png, .jpg, .jpeg" class="form-control blue-border" data-testid="file" />
+                    <label for="file" class="bold-label">Justificatif (au format jpg, jpeg ou png)</label>
+                    <!--ancien input pour correction bug
+                    <input required type="file" class="form-control blue-border" data-testid="file" />
+                    -->
+                    <!--BugFixé avec input modifié + ajout message d'erreur-->
+                    <input required type="file" class="form-control blue-border" data-testid="file" accept="image/jpg, image/jpeg, image/png"/>
+                    <div class="msgErrorFiletype hidden" data-testid="message_file_type_error">Fchier non supporté - Choisir un fichier du type <i>mon_fichier</i><b>.jpg</b>, <i>mon_fichier</i><b>.jpeg</b>, <i>mon_fichier</i><b>.png</b>.</div>
                   </div>
                 </div>
             </div>
@@ -70,5 +74,5 @@ export default () => {
         </div>
       </div>
     </div>
-  `)
-}
+  `;
+};

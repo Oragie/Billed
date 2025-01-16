@@ -33,7 +33,7 @@ export default class NewBill {
       errorFileTypeMsg.classList.remove("hidden");
     } else {
       console.log("type fichier OK", file.type);
-
+      errorFileTypeMsg.classList.add("hidden");
       this.fileName = fileName; // Stocker le nom du fichier pour l'envoyer plus tard lors de la soumission
     }
   };

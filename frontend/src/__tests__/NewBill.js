@@ -1,26 +1,25 @@
 /**
  * @jest-environment jsdom
  */
-import '@testing-library/jest-dom';
-import NewBillUI from "../views/NewBillUI.js"
-import NewBill from "../containers/NewBill.js"
-import mockStore from "../__mocks__/store" // NewTest
-import { localStorageMock } from "../__mocks__/localStorage.js" // New Test
-import BillsUI from "../views/BillsUI.js" // New Test
-import { ROUTES_PATH } from "../constants/routes.js" // NewTest
+import "@testing-library/jest-dom";
+import NewBillUI from "../views/NewBillUI.js";
+import NewBill from "../containers/NewBill.js";
+import mockStore from "../__mocks__/store"; // NewTest
+import { localStorageMock } from "../__mocks__/localStorage.js"; // New Test
+import BillsUI from "../views/BillsUI.js"; // New Test
+import { ROUTES_PATH } from "../constants/routes.js"; // NewTest
 import { screen, fireEvent, waitFor } from "@testing-library/dom"; // NewTest
-import userEvent from '@testing-library/user-event'; // NewTest
+import userEvent from "@testing-library/user-event"; // NewTest
 
-import router from "../app/Router.js" // NewTest
+import router from "../app/Router.js"; // NewTest
 
-jest.mock("../app/store", () => mockStore) // NewTest
+jest.mock("../app/store", () => mockStore); // NewTest
 
 describe("Given I am connected as an employee", () => {
-
   // ----------- NewTest ----------- //
   describe("When I upload a wrong file type", () => {
     test("Then an error message is displayed", async () => {
-      jest.spyOn(console, 'error').mockImplementation(() => { });
+      jest.spyOn(console, "error").mockImplementation(() => {});
 
       // Créer une fonction fictive pour onNavigate
       const onNavigate = jest.fn();
@@ -43,12 +42,14 @@ describe("Given I am connected as an employee", () => {
       const handleChangeFile = jest.fn((e) => newBill.handleChangeFile(e));
       inputFile.addEventListener("change", handleChangeFile);
 
-      const newFile = new File(["receiptTest.mp4"], "receiptTest.mp4", { type: "video/mp4" });
+      const newFile = new File(["receiptTest.mp4"], "receiptTest.mp4", {
+        type: "video/mp4",
+      });
       userEvent.upload(inputFile, newFile);
 
       expect(handleChangeFile).toHaveBeenCalled();
       expect(inputFile.files[0].type).toBe("video/mp4");
-      expect(inputFile.value).toBe('');
+      expect(inputFile.value).toBe("");
 
       await waitFor(() => screen.getByTestId("message_file_type_error"));
       const errorFileType = screen.queryByTestId("message_file_type_error");
@@ -85,7 +86,9 @@ describe("Given I am connected as an employee", () => {
       const handleChangeFile = jest.fn((e) => newBill.handleChangeFile(e));
       inputFile.addEventListener("change", handleChangeFile);
 
-      const newFile = new File(["receiptTest.png"], "receiptTest.png", { type: "image/png" });
+      const newFile = new File(["receiptTest.png"], "receiptTest.png", {
+        type: "image/png",
+      });
       userEvent.upload(inputFile, newFile);
 
       expect(handleChangeFile).toHaveBeenCalled();
@@ -94,10 +97,11 @@ describe("Given I am connected as an employee", () => {
 
       await waitFor(() => screen.getByTestId("message_file_type_error"));
       const errorFileType = screen.queryByTestId("message_file_type_error");
-      expect(errorFileType.getAttribute("class")).toMatch(/msgErrorFiletype hidden/);
+      expect(errorFileType.getAttribute("class")).toMatch(
+        /msgErrorFiletype hidden/
+      );
     });
   });
-
 
   // ----------- NewTest Soumettre le formulaire NewBill----------- //
   describe("When I fill the bill form with valid input", () => {
@@ -108,19 +112,19 @@ describe("Given I am connected as an employee", () => {
       window.onNavigate(ROUTES_PATH.NewBill);
 
       // Mock de localStorage pour inclure un email utilisateur
-      Object.defineProperty(window, 'localStorage', {
+      Object.defineProperty(window, "localStorage", {
         value: {
           getItem: jest.fn(() => JSON.stringify({ email: "test@example.com" })),
           setItem: jest.fn(),
           clear: jest.fn(),
         },
-        writable: true
+        writable: true,
       });
 
       // Définir mockStore avec bills comme une fonction retournant un objet avec `create`
       const mockStore = {
         bills: jest.fn(() => ({
-          create: jest.fn(() => Promise.resolve({}))
+          create: jest.fn(() => Promise.resolve({})),
         })),
         users: jest.fn(() => Promise.resolve([{ email: "test@example.com" }])),
       };
@@ -129,33 +133,35 @@ describe("Given I am connected as an employee", () => {
         document,
         onNavigate,
         store: mockStore,
-        localStorage: window.localStorage
+        localStorage: window.localStorage,
       });
 
       // Assurer que les éléments de formulaire existent avant d'interagir
-      await waitFor(() => expect(screen.getByTestId('form-new-bill')).toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.getByTestId("form-new-bill")).toBeInTheDocument()
+      );
 
       const testBill = {
-        type: 'Restaurants et bars',
-        name: 'O\'Bistro',
-        date: '2015-07-02',
+        type: "Restaurants et bars",
+        name: "O'Bistro",
+        date: "2015-07-02",
         amount: 47,
         vat: 20,
         pct: 5,
-        commentary: 'Repas séminaire',
-        fileUrl: '/src/assets/images/facturefreemobile.jpg',
-        fileName: 'facturefreemobile.jpg',
-        status: 'pending',
+        commentary: "Repas séminaire",
+        fileUrl: "/src/assets/images/facturefreemobile.jpg",
+        fileName: "facturefreemobile.jpg",
+        status: "pending",
       };
 
       // Remplir le formulaire avec des données de test
-      screen.getByTestId('expense-type').value = testBill.type;
-      screen.getByTestId('expense-name').value = testBill.name;
-      screen.getByTestId('datepicker').value = testBill.date;
-      screen.getByTestId('amount').value = testBill.amount;
-      screen.getByTestId('vat').value = testBill.vat;
-      screen.getByTestId('pct').value = testBill.pct;
-      screen.getByTestId('commentary').value = testBill.commentary;
+      screen.getByTestId("expense-type").value = testBill.type;
+      screen.getByTestId("expense-name").value = testBill.name;
+      screen.getByTestId("datepicker").value = testBill.date;
+      screen.getByTestId("amount").value = testBill.amount;
+      screen.getByTestId("vat").value = testBill.vat;
+      screen.getByTestId("pct").value = testBill.pct;
+      screen.getByTestId("commentary").value = testBill.commentary;
 
       newBill.fileName = testBill.fileName;
       newBill.fileUrl = testBill.fileUrl;
@@ -177,32 +183,37 @@ describe("Given I am connected as an employee", () => {
       jest.spyOn(mockStore, "bills").mockImplementationOnce(() => {
         return {
           create: () => {
-            return Promise.resolve();
+            //simuler un retour avec code 200
+            return Promise.resolve({ status: 200 });
           },
         };
       });
 
       // Vérification de l'appel API POST
-      await expect(mockStore.bills().create()).resolves.toBeUndefined();
+      await expect(mockStore.bills().create()).resolves.toEqual({
+        status: 200,
+      });
     });
   });
 
   describe("When an error occurs on API", () => {
     beforeEach(() => {
       jest.spyOn(mockStore, "bills");
-      Object.defineProperty(window, "localStorage", { value: localStorageMock });
+      Object.defineProperty(window, "localStorage", {
+        value: localStorageMock,
+      });
       window.localStorage.setItem(
-        'user',
+        "user",
         JSON.stringify({
-          type: 'Employee',
-          email: 'a@a',
+          type: "Employee",
+          email: "a@a",
         })
-      )
+      );
       const root = document.createElement("div");
       root.setAttribute("id", "root");
       document.body.appendChild(root);
       router();
-    })
+    });
 
     test("Fetches bills to an API and fails with 404 message error - 404 Not Found", async () => {
       mockStore.bills.mockImplementationOnce(() => {
@@ -236,4 +247,4 @@ describe("Given I am connected as an employee", () => {
       expect(message).toBeTruthy();
     });
   });
-})
+});
